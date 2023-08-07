@@ -1,62 +1,36 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include "main.h"
 
 /**
- * read_textfile - Reads and prints a text file to standard output.
- * @filename: The name of the file to read.
- * @letters: The number of letters to read and print.
+ * read_textfile - reads a text file and prints the letters
+ * @filename: filename.
+ * @letters: numbers of letters printed.
  *
- * Return: The actual number of letters read and printed.
+ * Return: numbers of letters printed. It fails, returns 0.
  */
 ssize_t read_textfile(const char *filename, size_t letters)
 {
-	if (filename == NULL)
+	int fd;
+	ssize_t nrd, nwr;
+	char *buf;
+
+	if (!filename)
 		return (0);
 
-	int fd = open(filename, O_RDONLY);
+	fd = open(filename, O_RDONLY);
+
 	if (fd == -1)
 		return (0);
 
-	char buffer[letters];
-	ssize_t bytes_read = read(fd, buffer, letters);
-
-	if (bytes_read == -1)
-	{
-		close(fd);
+	buf = malloc(sizeof(char) * (letters));
+	if (!buf)
 		return (0);
-	}
 
-	ssize_t bytes_written = write(STDOUT_FILENO, buffer, bytes_read);
+	nrd = read(fd, buf, letters);
+	nwr = write(STDOUT_FILENO, buf, nrd);
 
 	close(fd);
 
-	if (bytes_written == -1 || bytes_written != bytes_read)
-		return (0);
+	free(buf);
 
-	return (bytes_written);
+	return (nwr);
 }
-
-/**
- * main - Entry point
- * @argc: The number of command line arguments.
- * @argv: An array containing the command line arguments.
- *
- * Return: Always 0.
- */
-int main(int argc, char *argv[])
-{
-	if (argc != 2)
-	{
-		fprintf(stderr, "Usage: %s filename\n", argv[0]);
-		return (1);
-	}
-
-	ssize_t n = read_textfile(argv[1], 114);
-	printf("\n(printed chars: %ld)\n", n);
-
-	return (0);
-}
-
