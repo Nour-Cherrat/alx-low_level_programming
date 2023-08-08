@@ -3,36 +3,38 @@
 #include "main.h"
 
 /**
- * append_text_to_file - Appends text content to a file.
- * @filename: Name of the file to which text will be appended.
- * @text_content: Text content to append to the file.
+ * read_textfile - Reads and prints a text file to the POSIX standard output.
+ * @filename: Name of the file to read.
+ * @letters: Number of letters to read and print.
  *
- * Return: 1 on success, -1 on failure.
+ * Return: The actual number of letters read and printed.
  */
-int append_text_to_file(const char *filename, char *text_content)
+ssize_t read_textfile(const char *filename, size_t letters)
 {
-	int fd, bytes_written = 0;
+	int fd;
+	ssize_t nrd, nwr;
+	char *buf;
 
-	if (filename == NULL)
-		return (-1);
+	if (!filename)
+		return (0);
 
-	fd = open(filename, O_WRONLY | O_APPEND);
+	fd = open(filename, O_RDONLY);
 
 	if (fd == -1)
-		return (-1);
+		return (0);
 
-	if (text_content != NULL)
+	buf = malloc(sizeof(char) * letters);
+	if (!buf)
 	{
-		while (text_content[bytes_written] != '\0')
-			bytes_written++;
-
-		if (write(fd, text_content, bytes_written) == -1)
-		{
-			close(fd);
-			return (-1);
-		}
+		close(fd);
+		return (0);
 	}
 
+	nrd = read(fd, buf, letters);
+	nwr = write(STDOUT_FILENO, buf, nrd);
+
 	close(fd);
-	return (1);
+	free(buf);
+
+	return (nwr);
 }
