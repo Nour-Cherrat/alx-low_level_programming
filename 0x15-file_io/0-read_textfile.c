@@ -1,36 +1,38 @@
+#include <fcntl.h>
+#include <unistd.h>
 #include "main.h"
 
 /**
- * read_textfile - reads a text file and prints the letters
- * @filename: filename.
- * @letters: numbers of letters printed.
+ * append_text_to_file - Appends text content to a file.
+ * @filename: Name of the file to which text will be appended.
+ * @text_content: Text content to append to the file.
  *
- * Return: numbers of letters printed. It fails, returns 0.
+ * Return: 1 on success, -1 on failure.
  */
-ssize_t read_textfile(const char *filename, size_t letters)
+int append_text_to_file(const char *filename, char *text_content)
 {
-	int fd;
-	ssize_t nrd, nwr;
-	char *buf;
+	int fd, bytes_written = 0;
 
-	if (!filename)
-		return (0);
+	if (filename == NULL)
+		return (-1);
 
-	fd = open(filename, O_RDONLY);
+	fd = open(filename, O_WRONLY | O_APPEND);
 
 	if (fd == -1)
-		return (0);
+		return (-1);
 
-	buf = malloc(sizeof(char) * (letters));
-	if (!buf)
-		return (0);
+	if (text_content != NULL)
+	{
+		while (text_content[bytes_written] != '\0')
+			bytes_written++;
 
-	nrd = read(fd, buf, letters);
-	nwr = write(STDOUT_FILENO, buf, nrd);
+		if (write(fd, text_content, bytes_written) == -1)
+		{
+			close(fd);
+			return (-1);
+		}
+	}
 
 	close(fd);
-
-	free(buf);
-
-	return (nwr);
+	return (1);
 }
