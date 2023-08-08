@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 			close(fd_to);
 			exit(99);
 		}
-	} while (r_bytes == BUFFER_SIZE);
+	} while (r_bytes > 0);
 
 	if (close(fd_from) == -1 || close(fd_to) == -1)
 	{
@@ -65,4 +65,3 @@ int main(int argc, char *argv[])
 
 	return (0);
 }
-
